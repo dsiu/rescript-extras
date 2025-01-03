@@ -286,17 +286,17 @@ module OnlyRescriptSchemaTests = {
     @unboxed type t = Short(string)
     let struct =
       S.string
-      ->S.String.min(3)
-      ->S.String.max(10)
-      ->S.variant(s => Short(s))
-    let make = s => s->S.parseAnyWith(struct)->ResultEx.toOption
+      ->S.stringMinLength(3)
+      ->S.stringMaxLength(10)
+      ->S.to(s => Short(s))
+    let make = s => OptionEx.fromTryCatch(() => s->S.parseOrThrow(struct))
     let equals = (x: t, y: t) => x === y
   }
 
   module NonNegativeInt = {
     @unboxed type t = NonNegative(int)
-    let struct = S.int->S.Int.min(0)->S.variant(n => NonNegative(n))
-    let make = n => n->S.parseAnyWith(struct)->ResultEx.toOption
+    let struct = S.int->S.intMin(0)->S.to(n => NonNegative(n))
+    let make = n => OptionEx.fromTryCatch(() => n->S.parseOrThrow(struct))
     let equals = (x: t, y: t) => x === y
   }
 
@@ -348,11 +348,15 @@ module OnlyRescriptSchemaTests = {
     external fromShortString: ShortString.t => t = "%identity"
     external fromPoint: Point.t => t = "%identity"
 
-    let toPoint = (i: t) => i->S.parseAnyWith(Point.struct)->ResultEx.toOption
-    let toShortString = (i: t) => i->S.parseAnyWith(ShortString.struct)->ResultEx.toOption
-    let toNonNegativeInt = (i: t) => i->S.parseAnyWith(NonNegativeInt.struct)->ResultEx.toOption
+    let toPoint = (i: t) => OptionEx.fromTryCatch(() => i->S.parseOrThrow(Point.struct))
+    let toShortString = (i: t) => OptionEx.fromTryCatch(() => i->S.parseOrThrow(ShortString.struct))
 
-    let make = i => i->S.parseAnyWith(unionStruct)->ResultEx.toOption
+    let toNonNegativeInt = (i: t) =>
+      OptionEx.fromTryCatch(() => i->S.parseOrThrow(NonNegativeInt.struct))
+
+    // ReScript Schema v9 changed the api to always throw when error occurs
+    // make sure to catch the error and return None
+    let make = i => OptionEx.fromTryCatch(() => i->S.parseOrThrow(unionStruct))
 
     let match = (value, ~onPoint, ~onInt, ~onString) => {
       let result =
@@ -466,19 +470,28 @@ module OnlyRescriptSchemaTests = {
 module WithHelpFromRescriptSchema = {
   open RescriptSchema
 
+  let exceptionNotThrown = f => {
+    try {
+      f->ignore
+      true
+    } catch {
+    | _ => false
+    }
+  }
+
   module ShortString = {
     @unboxed type t = Short(string)
-    let struct = S.string->S.String.min(3)->S.String.max(10)->S.variant(s => Short(s))
-    let make = (s: string) => s->S.parseAnyWith(struct)->ResultEx.toOption
-    let isTypeOf = (s: unknown) => s->S.parseAnyWith(struct)->Result.isOk
+    let struct = S.string->S.stringMinLength(3)->S.stringMaxLength(10)->S.to(s => Short(s))
+    let make = (s: string) => OptionEx.fromTryCatch(() => s->S.parseOrThrow(struct))
+    let isTypeOf = (s: unknown) => exceptionNotThrown(() => s->S.parseOrThrow(struct))
     let equals = (x: t, y: t) => x === y
   }
 
   module NonNegativeInt = {
     @unboxed type t = NonNegative(int)
-    let struct = S.int->S.Int.min(0)->S.variant(n => NonNegative(n))
-    let make = (n: int) => n->S.parseAnyWith(struct)->ResultEx.toOption
-    let isTypeOf = (s: unknown) => s->S.parseAnyWith(struct)->Result.isOk
+    let struct = S.int->S.intMin(0)->S.to(n => NonNegative(n))
+    let make = (n: int) => exceptionNotThrown(() => n->S.parseOrThrow(struct))
+    let isTypeOf = (s: unknown) => exceptionNotThrown(() => s->S.parseOrThrow(struct))
     let equals = (x: t, y: t) => x === y
   }
 
@@ -489,7 +502,7 @@ module WithHelpFromRescriptSchema = {
       y: o.field("y", S.int),
     })
     let make = (x, y) => {x, y}
-    let isTypeOf = (s: unknown) => s->S.parseAnyWith(struct)->Result.isOk
+    let isTypeOf = (s: unknown) => exceptionNotThrown(() => s->S.parseOrThrow(struct))
     let equals = (a: t, b: t) => a.x === b.x && a.y === b.y
   }
 
@@ -505,12 +518,8 @@ module WithHelpFromRescriptSchema = {
     let toString = toA
     let toNonNegativeInt = toB
     let toPoint = toC
-    let match = (~onString, ~onInt, ~onPoint) => matchABC(
-      ~onA=onString,
-      ~onB=onInt,
-      ~onC=onPoint,
-      _,
-    )
+    let match = (~onString, ~onInt, ~onPoint) =>
+      matchABC(~onA=onString, ~onB=onInt, ~onC=onPoint, _)
   }
 }
 

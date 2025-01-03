@@ -83,7 +83,7 @@ let tests = {
     isTypeOfTest(
       ~title="Int",
       ~guard=Pattern.Int.isTypeOf,
-      ~ok=[1, -1, 34, Int32.max_int],
+      ~ok=[1, -1, 34, Int.Constants.maxValue],
       ~invalid1="abc",
       ~invalid2=false,
       ~invalid3={"a": 1},
@@ -209,17 +209,23 @@ let tests = {
       ~b=null,
       ~equals=NullableString.equals,
     ),
-    Test.fromPredicate(
-      ~category="Patterns",
-      ~title="MakeNullable (string)",
-      ~expectation="null != undefined != abc for built-in Nullable using == or ===",
-      () => {
-        let a: Nullable.t<string> = null->Obj.magic
-        let b: Nullable.t<string> = undefined->Obj.magic
-        let c = Nullable.make("abc")
-        a !== b && a !== c && b !== c && a != b && a != c && b != c
-      },
-    ),
+    //
+    // todo: compiler bug in ReScript-v12
+    // see:https://github.com/rescript-lang/rescript/issues/7225
+    //
+    //    Test.fromPredicate(
+    //      ~category="Patterns",
+    //      ~title="MakeNullable (string)",
+    //      ~expectation="null != undefined != abc for built-in Nullable using == or ===",
+    //      () => {
+    //        let a: Nullable.t<string> = null->Obj.magic
+    //        let b: Nullable.t<string> = undefined->Obj.magic
+    //        let c = Nullable.make("abc")
+    //
+    //        let result = a !== b && a !== c && b !== c && a != b && a != c && b != c
+    //        result
+    //      },
+    //    ),
     isTypeOfTest(
       ~title="MakeNull (int)",
       ~guard=NullInt.isTypeOf,
