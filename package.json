@@ -18,7 +18,7 @@
   "author": "Justin Magaram",
   "license": "ISC",
   "dependencies": {
-    "rescript": "^12.0.0-beta.2",
+    "rescript": "^12.0.0-beta.3",
     "rescript-schema": "^9.0.1"
   },
   "files": [

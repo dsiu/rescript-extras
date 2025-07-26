@@ -11,8 +11,8 @@
     }
   ],
   "suffix": ".bs.js",
-  "bs-dependencies": ["rescript-schema"],
-  "bsc-flags": [],
+  "dependencies": ["rescript-schema"],
+  "compiler-flags": [],
   "gentypeconfig": {
     "language": "typescript",
     "shims": {},
