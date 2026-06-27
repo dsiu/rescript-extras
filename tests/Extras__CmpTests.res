@@ -64,9 +64,9 @@ let tests =
   [
     lessThanTests(~small=1, ~big=99, ~cmp=Int.compare),
     lessThanTests(~small=1, ~big=99, ~cmp=Int.compare),
-    lessThanTests(~small="a", ~big="b", ~cmp=String.localeCompare),
+    lessThanTests(~small="a", ~big="b", ~cmp=String.compare),
     areSameTests(~a=1.0, ~b=1.0, ~cmp=Float.compare),
     areSameTests(~a=1, ~b=1, ~cmp=Int.compare),
-    areSameTests(~a="abc", ~b="abc", ~cmp=String.localeCompare),
+    areSameTests(~a="abc", ~b="abc", ~cmp=String.compare),
     otherTests,
   ]->A.flat

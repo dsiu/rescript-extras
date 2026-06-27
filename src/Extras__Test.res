@@ -26,7 +26,7 @@ type summary = {
   ran: int,
 }
 
-let cmp = (a, b) => String.localeCompare(a.category ++ a.title, b.category ++ b.title)
+let cmp = (a, b) => String.compare(a.category ++ a.title, b.category ++ b.title)
 
 let fromResult = (~category, ~title, ~expectation=?, predicate) => {
   category,

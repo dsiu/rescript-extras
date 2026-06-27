@@ -109,7 +109,7 @@ module Bool = {
 module String = {
   type t = string
   let isTypeOf = u => u->Unknown.typeof == #string
-  let equals = (x: string, y: string) => String.localeCompare(x, y) == 0.0
+  let equals = (x: string, y: string) => x == y
 }
 
 // https://stackoverflow.com/questions/643782/how-to-check-whether-an-object-is-a-date
